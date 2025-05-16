@@ -1,22 +1,36 @@
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import './test.css';
-import Header from '../../components/Header/Header';
-import FooterSection from '../../components/Footer/footer';
+import { useState, useEffect } from 'react';
+import { apiGet } from '../../api/axios';
+import { useNavigate } from 'react-router-dom';
 
-const courses = [
-  { title: "Air Navigation", desc: "General, Instruments, Radio", img: "images/frame.png" },
-  { title: "Air Navigation", desc: "General, Instruments, Radio", img: "images/frame.png" },
-  { title: "Air Navigation", desc: "General, Instruments, Radio", img: "images/frame.png" },
-  { title: "Air Navigation", desc: "General, Instruments, Radio", img: "images/frame.png" },
-  { title: "Air Navigation", desc: "General, Instruments, Radio", img: "images/frame.png" },
-];
+function Syllabus() {
 
-function TestGrid() {
+  const[syllabus, setSyllabus]= useState([]);
+
+useEffect(()=>{
+      const fetchSyllabus = async () => {
+      try {
+        const response = await apiGet('/getSyllabus')
+        setSyllabus(response.data.data);
+        
+      } catch (error) {
+        console.error('Error fetching syllabus:', error);
+      }
+    };
+
+    fetchSyllabus();
+
+},[])
+
+const navigate = useNavigate();
+  const handleNavigate = () => {
+    navigate('/');
+  };
+
   return (
-    <>
-      <Header />
+       <>
       <section className="p-5 bg-light">
         <div className="container">
           <h1 className="fw-bold text-dark-blue mb-3">
@@ -29,23 +43,22 @@ function TestGrid() {
       </section>
       <div className="container mb-5">
         <div className="course-grid-container">
-          {courses.map((course, index) => (
+          {syllabus.map((course, index) => (
             <div className="course-card" key={index}>
               <div className="course-image">
-                <img src={course.img} alt={course.title} />
+                <img src={course.imageUrl} alt={course.title} />
               </div>
               <div className="course-content">
                 <h5>{course.title}</h5>
-                <p>{course.desc}</p>
-                <button className="start-btn">Start</button>
+                <p>{course.category}</p>
+                <button className="start-btn" onClick={()=> handleNavigate()}>Start</button>
               </div>
             </div>
           ))}
         </div>
       </div>
-      <FooterSection />
     </>
   );
 }
 
-export default TestGrid;
+export default Syllabus;

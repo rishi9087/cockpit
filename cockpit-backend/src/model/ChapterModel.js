@@ -15,7 +15,6 @@ chapterno:{
 
 chaptername:{
     type: String,
-    // unique: true,
 },     
 status:{
     type: String

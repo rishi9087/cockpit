@@ -211,6 +211,26 @@ const addBooks = async (req, res) => {
     }
 }
 
+const getBooks = async (req, res) => {
+    try {
+        const book = await Book.find();
+        if (!book) {
+            res.json({
+                status: 400,
+                message: "Book not found"
+            })
+        }
+        res.json({
+            status: 200,
+            message: "books fetched successfully",
+            books: book
+        });
+
+    } catch (error) {
+        console.log(error);
+    }
+}
+
 const getRandomQuestions = async (req, res) => {
     try {
          const total = parseInt(req.query.size);
@@ -231,4 +251,6 @@ const getRandomQuestions = async (req, res) => {
     }
 }
 
-module.exports = { getQuestions, uploadQuestions, uploadQuestionsBulk, addSyllabus, getSyllabus, addChapters, getChapters, addBooks, getRandomQuestions };
+
+
+module.exports = { getQuestions, uploadQuestions, uploadQuestionsBulk, addSyllabus, getSyllabus, addChapters, getChapters, addBooks, getBooks, getRandomQuestions };
