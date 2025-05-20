@@ -1,6 +1,8 @@
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './footer.css'; 
+import { Link } from 'react-router-dom';
+
 function FooterSection() {
   return (
     <footer className="bg-dark-blue text-white pt-5 pb-3">
@@ -21,9 +23,9 @@ function FooterSection() {
 
           <div className="col-md-3 mb-4">
             <h5 className="text-warning">Platforms</h5>
-            <p className="text-warning">Home</p>
-            <p>Training</p>
-            <p>Test</p>
+            <p >  <Link to='/' className='link-text'>Home</Link> </p>
+            <p> <Link to="/training" className='link-text'>Training</Link></p>
+            <p> <Link to="/test" className='link-text'> Test</Link></p>
             <p>Syllabus</p>
           </div>
 

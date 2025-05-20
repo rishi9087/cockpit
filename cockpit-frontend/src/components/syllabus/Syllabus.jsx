@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { apiGet } from '../../api/axios';
 import { useNavigate } from 'react-router-dom';
 
-function Syllabus() {
+function Syllabus({handleClick}) {
 
   const[syllabus, setSyllabus]= useState([]);
 
@@ -24,11 +24,6 @@ useEffect(()=>{
 
 },[])
 
-const navigate = useNavigate();
-  const handleNavigate = () => {
-    navigate('/');
-  };
-
   return (
        <>
       <section className="p-5 bg-light">
@@ -41,8 +36,8 @@ const navigate = useNavigate();
           </p>
         </div>
       </section>
-      <div className="container mb-5">
-        <div className="course-grid-container">
+      <div className="container mb-5" >
+        <div className="course-grid-container" style={{display:'flex', gap:'50px'}}>
           {syllabus.map((course, index) => (
             <div className="course-card" key={index}>
               <div className="course-image">
@@ -51,7 +46,7 @@ const navigate = useNavigate();
               <div className="course-content">
                 <h5>{course.title}</h5>
                 <p>{course.category}</p>
-                <button className="start-btn" onClick={()=> handleNavigate()}>Start</button>
+                <button className="start-btn" onClick={()=> handleClick(course.title)}>Start</button>
               </div>
             </div>
           ))}

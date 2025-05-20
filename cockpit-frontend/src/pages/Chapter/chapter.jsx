@@ -5,12 +5,16 @@ import './chapter.css';
 import Header from '../../components/Header/Header';
 import FooterSection from '../../components/Footer/footer';
 import { apiGet } from '../../api/axios';
+import { Link, useLocation } from 'react-router-dom';
 
 const ChapterSection = () => {
     const [activeBook, setactiveBook] = useState('rk bali');
 
     const [books, setBooks] = useState([])
     const [chapters, setChapters] = useState([]);
+
+    const location = useLocation();
+    const syllabusTitle = location.state;
 
     useEffect(() => {
         const fetchBooks = async () => {
@@ -38,7 +42,7 @@ const ChapterSection = () => {
 
     }, [])
 
-    const filteredChapters = chapters.filter((chapter) => chapter.book === activeBook);
+    const filteredChapters = chapters.filter((chapter) => chapter.book === activeBook && chapter.syllabus === syllabusTitle);
 
     return (
         <>
@@ -70,9 +74,11 @@ const ChapterSection = () => {
                     <div className="chapter-list px-5">
                         {
                             filteredChapters.map((chapter, index) => (
-                                <div className="chapter-box" key={index}>
-                                    <p>{chapter.chaptername}</p>
-                                </div>
+                                <Link key={index} to={`/trainingQuestion/${chapter.syllabus}/${chapter.book}/${chapter.chaptername}`} className='link-text'>
+                                    <div className="chapter-box" key={index}>
+                                        <p>{chapter.chaptername}</p>
+                                    </div>
+                                </Link>
                             ))
                         }
 

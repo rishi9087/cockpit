@@ -5,7 +5,7 @@ import Footer from '../components/Footer/footer';
 import Profile from '../pages/Profile/profile'; 
 import TrainingSyllabus from '../pages/Training/TrainingSyllabus';
 import Chapter from '../pages/Chapter/chapter';
-import Question from '../pages/Question/question';
+import TrainingQuestion from '../pages/Training/TrainingQuestions';
 import TestSyllabus from '../pages/Test/TestSyllabus';
 
 const AppRouter = () => {
@@ -16,7 +16,7 @@ const AppRouter = () => {
         <Route path="/profile" element={<Profile />} />
         <Route path="/training" element={<TrainingSyllabus />} />
         <Route path="/chapter" element={<Chapter />} />
-        <Route path="/question" element={<Question />} />
+        <Route path="/trainingQuestion/:syllabusName/:bookName/:chapterName" element={<TrainingQuestion />} />
         <Route path="/test" element={<TestSyllabus />} />
       </Routes>
     </BrowserRouter>

@@ -12,4 +12,9 @@
   .plane-icon {
     height: 65px;
   }
+
+  .link-text{
+    text-decoration: none;
+    color: white;
+  }
   

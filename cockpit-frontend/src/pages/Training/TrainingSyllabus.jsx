@@ -7,15 +7,20 @@ import FooterSection from '../../components/Footer/footer';
 import { useEffect, useState } from 'react';
 import { apiGet } from '../../api/axios';
 import Syllabus from '../../components/syllabus/Syllabus';
+import { useNavigate } from 'react-router-dom';
 
 function TrainingSyllabus() {
 
-  const [syllabus, setSyllabus] = useState([]);
+   const navigate = useNavigate();
 
+  const handleClick = (params) => {
+    navigate('/chapter', { state: params }); 
+  };
+        
   return (
     <>
       <Header />
-      <Syllabus />
+      <Syllabus handleClick={handleClick}/>
       <FooterSection />
     </>
   );
