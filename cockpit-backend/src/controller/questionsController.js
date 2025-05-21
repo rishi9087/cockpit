@@ -3,6 +3,7 @@ const Question = require("../model/QuestionModel")
 const Syllabus = require("../model/SyllabusModel")
 const Chapter = require("../model/ChapterModel")
 const Book = require("../model/BookModel")
+const Report = require("../model/ReportModel")
 
 const uploadQuestions = async (req, res) => {
     try {
@@ -233,14 +234,50 @@ const getBooks = async (req, res) => {
 
 const getRandomQuestions = async (req, res) => {
     try {
-         const total = parseInt(req.query.size);
-        const randomQuestions = await Question.aggregate([{ $sample: { size: total } }]);
+        const total = parseInt(req.query.size) || 50;
+        const { syllabus, book } = req.body;
 
+        const randomQuestions = await Question.aggregate([
+            { 
+                $match: { 
+                    syllabus: syllabus, 
+                    book: book 
+                } 
+            },
+            { 
+                $sample: { size: total } 
+            }
+        ]);
 
         res.json({
             status: 200,
             message: "Random questions fetched successfully",
             data: randomQuestions
+        });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({
+            status: 500,
+            message: "Internal server error"
+        });
+    }
+}
+
+
+const reportQuestion = async (req, res) => {
+    try {
+        const { questionId,syllabus, explanation  } = req.body;
+        const report = await Report.create({
+            questionId,
+            syllabus,
+            explanation
+        })
+
+        res.json({
+            status: 200,
+            message: "Question reported successfully",
+            data: report
         });
 
     } catch (err) {
@@ -253,4 +290,5 @@ const getRandomQuestions = async (req, res) => {
 
 
 
-module.exports = { getQuestions, uploadQuestions, uploadQuestionsBulk, addSyllabus, getSyllabus, addChapters, getChapters, addBooks, getBooks, getRandomQuestions };
+module.exports = { getQuestions, uploadQuestions, uploadQuestionsBulk, addSyllabus, getSyllabus,
+ addChapters, getChapters, addBooks, getBooks, getRandomQuestions, reportQuestion };

@@ -13,12 +13,16 @@ function TestSyllabus() {
 
   const[syllabus, setSyllabus]= useState([]);
 
-  const navigate = useNavigate();
+   const navigate = useNavigate();
+
+  const handleClick = (params) => {
+    navigate('/testRules', { state: params }); 
+  };
 
   return (
        <>
       <Header />
-      <Syllabus/>
+      <Syllabus handleClick={handleClick}/>
       <FooterSection />
     </>
   );

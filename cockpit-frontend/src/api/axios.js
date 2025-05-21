@@ -11,9 +11,9 @@ export const apiGet = async (endpoint) => {
   return await axios.get(`${BASE_URL}${endpoint}`, { headers });
 };
 
+
 // POST
 export const apiPost = async (endpoint, data) => {
-    console.log("end point", endpoint);
              
   const headers = {
     'Content-Type': 'application/json',

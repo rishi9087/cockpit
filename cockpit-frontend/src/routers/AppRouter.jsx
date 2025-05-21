@@ -7,6 +7,8 @@ import TrainingSyllabus from '../pages/Training/TrainingSyllabus';
 import Chapter from '../pages/Chapter/chapter';
 import TrainingQuestion from '../pages/Training/TrainingQuestions';
 import TestSyllabus from '../pages/Test/TestSyllabus';
+import TestRules from '../pages/Test/TestRules';
+import TestPage from '../pages/Test/TestPage';
 
 const AppRouter = () => {
   return (
@@ -18,6 +20,9 @@ const AppRouter = () => {
         <Route path="/chapter" element={<Chapter />} />
         <Route path="/trainingQuestion/:syllabusName/:bookName/:chapterName" element={<TrainingQuestion />} />
         <Route path="/test" element={<TestSyllabus />} />
+        <Route path="/testRules" element={<TestRules />} />
+        <Route path="/testpage" element={<TestPage />} />
+       
       </Routes>
     </BrowserRouter>
   );

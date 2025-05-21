@@ -4,6 +4,7 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import { useState, useEffect } from 'react';
 import { apiGet } from '../../api/axios';
 import { useNavigate } from 'react-router-dom';
+import './syllabus.css';
 
 function Syllabus({handleClick}) {
 
@@ -44,8 +45,8 @@ useEffect(()=>{
                 <img src={course.imageUrl} alt={course.title} />
               </div>
               <div className="course-content">
-                <h5>{course.title}</h5>
-                <p>{course.category}</p>
+                <h4 style={{fontWeight:'bold'}}>{course.title}</h4>
+                <p style={{color:'#EAB308'}}>{course.category}</p>
                 <button className="start-btn" onClick={()=> handleClick(course.title)}>Start</button>
               </div>
             </div>
