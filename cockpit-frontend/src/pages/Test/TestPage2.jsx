@@ -16,6 +16,7 @@ function TestPage2() {
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [selectedOptions, setSelectedOptions] = useState({});
     const [markedForReview, setMarkedForReview] = useState({});
+    const [skip, setSkip] = useState({});
     const [timeLeft, setTimeLeft] = useState(90 * 60); // 90 minutes in seconds
     const [openSubmitDialog, setOpenSubmitDialog] = useState(false);
 
@@ -39,8 +40,8 @@ function TestPage2() {
             setTimeLeft((prev) => {
                 if (prev <= 0) {
                     clearInterval(timer);
-                    handleSubmit();
-                    return 0;
+                    setTimeout(() => confirmSubmit(), 0);
+                    // return 0;
                 }
                 return prev - 1;
             });
@@ -65,6 +66,9 @@ function TestPage2() {
     const handleMarkForReview = (questionId) => {
         setMarkedForReview((prev) => ({ ...prev, [questionId]: !prev[questionId] }));
     };
+    const handleSkip = (questionId) => {
+        setSkip((prev) => ({ ...prev, [questionId]: !prev[questionId] }));
+    };
 
     // Handle navigation
     const handleNext = () => {
@@ -81,122 +85,283 @@ function TestPage2() {
 
     // Handle reset
     const handleReset = () => {
-        setSelectedOptions({});
-        setMarkedForReview({});
-        setCurrentQuestionIndex(0);
+        const currentQuestionId = questions[currentQuestionIndex]?._id;
+        if (!currentQuestionId) return;
+
+        setSelectedOptions((prev) => {
+            const updated = { ...prev };
+            delete updated[currentQuestionId];
+            return updated;
+        });
+
+        setMarkedForReview((prev) => {
+            const updated = { ...prev };
+            delete updated[currentQuestionId];
+            return updated;
+        });
+
+        setSkip((prev) => {
+            const updated = { ...prev };
+            delete updated[currentQuestionId];
+            return updated;
+        });
     };
+
 
     // Handle submit
     const handleSubmit = useCallback(() => {
         setOpenSubmitDialog(true);
     }, []);
 
-    // Confirm submission
-    const confirmSubmit = async () => {
-        try {
-            // Replace with actual submission logic
-            console.log('Submitting quiz:', { selectedOptions, markedForReview });
-            setOpenSubmitDialog(false);
-            // Navigate or show results as needed
-        } catch (error) {
-            console.error('Error submitting quiz:', error);
-        }
-    };
 
     // Get chip color based on question status
     const getChipColor = (index, questionId) => {
-        if (index === currentQuestionIndex) return 'primary';
-        if (markedForReview[questionId]) return 'warning';
-        if (selectedOptions[questionId]) return 'success';
-        return 'default';
+        const result = evaluation[questionId];
+
+        if (result === 'correct') return 'green';
+        if (result === 'incorrect') return 'red';
+        if (result === 'skipped') return 'white';
+
+        if (index === currentQuestionIndex) return 'lightblue';
+        if (markedForReview[questionId]) return 'blue';
+        if (skip[questionId]) return 'white';
+        if (selectedOptions[questionId]) return 'green';
+
+        return '#F6F6F6';
     };
+
+    const [evaluation, setEvaluation] = useState({});
+    const [resultCounts, setResultCounts] = useState({
+        correct: 0,
+        incorrect: 0,
+        skipped: 0,
+    });
+    const [isSubmitted, setIsSubmitted] = useState(false);
+    const [timeTaken, setTimeTaken] = useState(0); // in seconds
+
+    const confirmSubmit = async () => {
+        try {
+            const evalResult = {};
+            let correct = 0;
+            let incorrect = 0;
+            let skipped = 0;
+
+            questions.forEach((question) => {
+                const selected = selectedOptions[question._id];
+                if (!selected) {
+                    evalResult[question._id] = 'skipped';
+                    skipped++;
+                } else {
+                    const chosenOption = question.options.find((opt) => opt.id === selected);
+                    if (chosenOption?.isCorrect) {
+                        evalResult[question._id] = 'correct';
+                        correct++;
+                    } else {
+                        evalResult[question._id] = 'incorrect';
+                        incorrect++;
+                    }
+                }
+            });
+
+            setEvaluation(evalResult);
+            setResultCounts({ correct, incorrect, skipped });
+            setOpenSubmitDialog(false);
+            setIsSubmitted(true);
+            setTimeTaken((90 * 60) - timeLeft);
+
+        } catch (error) {
+            console.error('Error during evaluation:', error);
+        }
+    };
+
+
+
 
     return (
         <>
+
+
             <Header />
+
             <Container maxWidth="lg" sx={{ py: 4 }}>
-                <Typography variant="h4" align="center" gutterBottom>
-                    {syllabusTitle} - {activeBook}
-                </Typography>
+
 
                 {/* Question Number Chips */}
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, justifyContent: 'center', mb: 4 }}>
-                    {questions.map((question, index) => (
-                        <Chip
-                            key={question._id}
-                            label={index + 1}
-                            color={getChipColor(index, question._id)}
-                            onClick={() => setCurrentQuestionIndex(index)}
-                            sx={{ cursor: 'pointer', minWidth: 40 }}
-                        />
-                    ))}
-                </Box>
 
-                {/* Timer */}
-                <Typography variant="h6" align="center" color="text.secondary" sx={{ mb: 4 }}>
-                    Time Left: {formatTime(timeLeft)}
-                </Typography>
 
-                {/* Current Question */}
-                {questions.length > 0 && (
-                    <Paper elevation={3} sx={{ p: 3, mb: 4, border: '1px solid', borderColor: 'grey.300' }}>
-                        <Typography variant="h6" gutterBottom>
-                            Question {currentQuestionIndex + 1}: {questions[currentQuestionIndex]?.question}
+                {isSubmitted ? (
+                    // ✅ Summary UI
+                    <Box sx={{ mt: 2 }}>
+
+                        <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
+                            {syllabusTitle} {activeBook} <span style={{ color: '#EAB308' }}>RESULT</span>
                         </Typography>
-                        <FormControl component="fieldset">
-                            <RadioGroup
-                                value={selectedOptions[questions[currentQuestionIndex]._id] || ''}
-                                onChange={(e) => handleOptionSelect(questions[currentQuestionIndex]._id, parseInt(e.target.value))}
-                            >
-                                <Grid container spacing={2}>
-                                    {questions[currentQuestionIndex]?.options?.map((option) => (
-                                        <Grid item xs={12} key={option._id}>
+
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 1, mt: 3 }}>
+                            {questions.map((q, index) => {
+                                const result = evaluation[q._id];
+                                const colorMap = {
+                                    correct: 'green',
+                                    incorrect: 'red',
+                                    skipped: 'white',
+                                };
+                                return (
+
+                                    <Chip
+                                        key={q._id}
+                                        label={index + 1}
+
+                                        sx={{
+                                            cursor: 'pointer',
+                                            minWidth: 60,
+                                            backgroundColor: colorMap[result],
+                                            color: result === 'skipped' ? 'black' : 'white',
+                                            fontWeight: 'bold',
+                                            borderRadius: 2
+
+                                        }}
+                                    />
+                                );
+                            })}
+                        </Box>
+
+                        <Box mt={7} >
+                            <Typography variant="h6" >
+                                <span style={{ color: '#183251', fontWeight: 'bold' }}>Time Taken:</span>  <span style={{ color: '#EAB308', fontWeight: 'bold' }}>{formatTime(timeTaken)}</span>
+                            </Typography>
+                            <Box textAlign={'center'} sx={{ display: 'flex', justifyContent: 'center', gap: 2 }} mt={4}>
+                                <Typography variant="body1" gutterBottom sx={{ border: '1px solid', borderRadius: '5px', padding: '20px', backgroundColor: '#22C55E', color: 'white', width: '20%' }}>
+                                    Correct
+                                    <div>{resultCounts.correct}</div>
+                                </Typography>
+                                <Typography variant="body1" gutterBottom sx={{ border: '1px solid', borderRadius: '5px', padding: '20px', backgroundColor: 'red', color: 'white', width: '20%' }}>
+                                    Incorrect
+                                    <div>{resultCounts.incorrect}</div>
+                                </Typography>
+                                <Typography variant="body1" gutterBottom sx={{ border: '1px solid black', borderRadius: '5px', padding: '20px', width: '20%' }}>
+                                    Skipped
+                                    <div>{resultCounts.skipped}</div>
+                                </Typography>
+                            </Box>
+
+
+                        </Box>
+
+
+
+                    </Box>
+                ) : (
+                    <>
+                        <Typography variant="h4" mb={4} sx={{ fontWeight: 'bold' }}>
+                            {syllabusTitle} {activeBook}
+                        </Typography>
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, justifyContent: 'center', mb: 4 }}>
+                            {questions.map((question, index) => (
+                                <Chip
+                                    key={question._id}
+                                    label={index + 1}
+                                    onClick={() => setCurrentQuestionIndex(index)}
+                                    sx={{
+                                        cursor: 'pointer',
+                                        minWidth: 60,
+                                        backgroundColor: getChipColor(index, question._id),
+                                        color: getChipColor(index, question._id) === '#F6F6F6' || 'white' ? 'black' : 'white',
+                                        fontWeight: 'bold',
+                                        borderRadius: 2
+                                    }}
+                                />
+                            ))}
+                        </Box>
+
+                        <Typography variant="h6" sx={{ mb: 4 }}>
+                            <span style={{ color: '#183251', fontWeight: 'bold' }}>Time Left:</span>  <span style={{ color: '#EAB308', fontWeight: 'bold' }}> {formatTime(timeLeft)}</span>
+                        </Typography>
+
+                        {/* Current Question */}
+                        {questions.length > 0 && (
+                            <Paper sx={{ p: 3, mb: 4, border: '1px solid', borderColor: 'grey.400' }}>
+                                <Typography sx={{ fontSize: '18px', }} >
+                                    <span style={{ color: 'white', backgroundColor: '#183251', borderRadius: '50%', padding: '3px', display: 'inline-block', textAlign: 'center', width: '30px', height: '30px' }}>{currentQuestionIndex + 1}</span> <span style={{ color: '183251', fontWeight: '600', marginLeft: '10px' }}>{questions[currentQuestionIndex]?.question}</span>
+                                </Typography>
+                                <FormControl component="fieldset" sx={{ mt: 2 }}>
+                                    <RadioGroup
+                                        value={selectedOptions[questions[currentQuestionIndex]._id] || ''}
+                                        onChange={(e) =>
+                                            handleOptionSelect(
+                                                questions[currentQuestionIndex]._id,
+                                                parseInt(e.target.value)
+                                            )
+                                        }
+                                    >
+                                        {questions[currentQuestionIndex]?.options?.map((option) => (
                                             <FormControlLabel
+                                                key={option._id}
                                                 value={option.id}
                                                 control={<Radio />}
                                                 label={option.text}
-                                                sx={{ '& .MuiFormControlLabel-label': { width: '100%' } }}
                                             />
-                                        </Grid>
-                                    ))}
-                                </Grid>
-                            </RadioGroup>
-                        </FormControl>
-                    </Paper>
+                                        ))}
+                                    </RadioGroup>
+                                </FormControl>
+
+                            </Paper>
+                        )}
+
+                        {/* Navigation Buttons */}
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
+                            <Button
+                                variant="outlined"
+                                onClick={handlePrevious}
+                                sx={{ backgroundColor: "#183251", color: "white" }}
+                            >
+                                Previous
+                            </Button>
+                            <Button
+                                variant="outlined"
+                                onClick={handleNext}
+                                sx={{ backgroundColor: "#183251", color: "white" }}
+
+                            >
+                                Next
+                            </Button>
+
+                            <Button variant="outlined" onClick={handleReset}
+                                sx={{ backgroundColor: "#C5322A", color: "white" }}
+
+                            >
+                                Reset
+                            </Button>
+
+                            <Button
+                                // variant="outlined"
+                                sx={{ border: '1px solid #183251', color: "#183251" }}
+                                onClick={() => handleSkip(questions[currentQuestionIndex]?._id)}
+                            >
+                                Skip
+                            </Button>
+
+                            <Button
+                                sx={{ backgroundColor: "#A855F7", color: "white" }}
+                                variant="outlined"
+                                onClick={() => handleMarkForReview(questions[currentQuestionIndex]?._id)}
+                            >
+                                {markedForReview[questions[currentQuestionIndex]?._id]
+                                    ? 'Unmark Review'
+                                    : 'Mark for Review'}
+                            </Button>
+
+                            <Button variant="contained" onClick={handleSubmit}
+                                sx={{ backgroundColor: "#C5322A", color: "white" }}
+                            >
+                                Submit
+                            </Button>
+                        </Box>
+                    </>
                 )}
 
-                {/* Navigation Buttons */}
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
-                    <Button
-                        variant="outlined"
-                        onClick={handlePrevious}
-                        disabled={currentQuestionIndex === 0}
-                    >
-                        Previous
-                    </Button>
-                    <Button
-                        variant="outlined"
-                        onClick={() => handleMarkForReview(questions[currentQuestionIndex]?._id)}
-                        color={markedForReview[questions[currentQuestionIndex]?._id] ? 'warning' : 'primary'}
-                    >
-                        {markedForReview[questions[currentQuestionIndex]?._id]
-                            ? 'Unmark Review'
-                            : 'Mark for Review'}
-                    </Button>
-                    <Button variant="outlined" onClick={handleReset}>
-                        Reset
-                    </Button>
-                    <Button
-                        variant="outlined"
-                        onClick={handleNext}
-                        disabled={currentQuestionIndex === questions.length - 1}
-                    >
-                        Next
-                    </Button>
-                    <Button variant="contained" onClick={handleSubmit}>
-                        Submit
-                    </Button>
-                </Box>
+
+                {/* Timer */}
+
             </Container>
 
             {/* Submit Confirmation Dialog */}
@@ -208,9 +373,13 @@ function TestPage2() {
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenSubmitDialog(false)}>Cancel</Button>
-                    <Button onClick={confirmSubmit} variant="contained">
-                        Submit
+                    <Button onClick={() => setOpenSubmitDialog(false)}
+                        sx={{ border: '1px solid #183251', color: '#183251' }}
+                    >No</Button>
+                    <Button onClick={confirmSubmit} variant="contained"
+                        sx={{ backgroundColor: '#183251', color: 'white' }}
+                    >
+                        Yes
                     </Button>
                 </DialogActions>
             </Dialog>
