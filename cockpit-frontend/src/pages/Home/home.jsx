@@ -4,8 +4,15 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import './home.css';
 import Header from '../../components/Header/Header';
 import FooterSection from '../../components/Footer/footer';
+import { useNavigate } from 'react-router-dom';
 
 function HomeSection() {
+
+   const navigate = useNavigate();
+   const handleClick = () => {
+     navigate('/training');
+   };
+
 return (
 <>
 <Header/>
@@ -23,7 +30,7 @@ return (
                   you’re a beginner or preparing for exams, we’ll help you soar higher.
                </p>
                <p className="fw-semibold">Ready for Takeoff?</p>
-               <button className="btn-lg px-4 mt-2">Get Started</button>
+               <button className="btn-lg px-4 mt-2" onClick={handleClick}> Get Started</button>
             </div>
             <div className="col-md-12 text-center position-relative">
                <img src="/images/Plane.png" alt="Plane" className="img-fluid mt-4 plane-img" />

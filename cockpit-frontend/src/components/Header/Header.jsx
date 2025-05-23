@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom'; // ✅ Import Link from React Router
+import { Link } from 'react-router-dom'; 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Header.css'; 
 
@@ -19,7 +19,7 @@ function Header() {
           <Link to="/syllabus" className="nav-link py-2">Syllabus</Link>
         </nav>
 
-        <Link to="/boarding-pass" className="btn btn-outline-warning px-4 py-2">Get Boarding Pass</Link>
+        <Link to="/profile" className="btn btn-outline-warning px-4 py-2">Get Boarding Pass</Link>
       </div>
     </header>
   );

@@ -4,7 +4,6 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import './profile.css';
 import { apiPost } from '../../api/axios';
 
-
 function Profile() {
   const [activeForm, setActiveForm] = useState('login');
 
@@ -183,10 +182,6 @@ function Profile() {
               <img src="images/twitter.png" alt="Plane" style={{ height: '40px' }} />
             </button>
           </div>
-          {/* <footer className="text-white-50 text-center mt-4 small">
-            Made For Aviators with to see them in cockpit one day <br />
-            &copy; 2023 <span className="text-warning">Cockpit Inc.</span> All rights reserved
-          </footer> */}
         </div>
       </div>
     </>

@@ -32,8 +32,15 @@ function TestRules() {
 
     const navigate = useNavigate();
     const handleClick = () => {
-      navigate('/testpage' , {state: {activeBook, syllabusTitle}})
+        const token = localStorage.getItem('authToken');
+
+        if (token) {
+            navigate('/testpage', { state: { activeBook, syllabusTitle } });
+        } else {
+            navigate('/profile');
+        }
     };
+
 
     return (
         <>

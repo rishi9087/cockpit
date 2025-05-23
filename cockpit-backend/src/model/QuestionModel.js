@@ -12,7 +12,6 @@ book:{
 chapter:{
   type: String
 },
-
 questionId:{
     type: String,
     // unique: true,

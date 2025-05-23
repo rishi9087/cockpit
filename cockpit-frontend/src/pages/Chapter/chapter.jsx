@@ -5,7 +5,7 @@ import './chapter.css';
 import Header from '../../components/Header/Header';
 import FooterSection from '../../components/Footer/footer';
 import { apiGet } from '../../api/axios';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 const ChapterSection = () => {
     const [activeBook, setactiveBook] = useState('rk bali');
@@ -44,6 +44,17 @@ const ChapterSection = () => {
 
     const filteredChapters = chapters.filter((chapter) => chapter.book === activeBook && chapter.syllabus === syllabusTitle);
 
+
+    const navigate = useNavigate();
+const handleChapterClick = (chapter) => {
+    const token= localStorage.getItem('authToken');
+  if (token) {
+    navigate(`/trainingQuestion/${chapter.syllabus}/${chapter.book}/${chapter.chaptername}`);
+  } else {
+    navigate('/profile');
+  }
+};
+
     return (
         <>
             <Header />
@@ -74,11 +85,14 @@ const ChapterSection = () => {
                     <div className="chapter-list px-5">
                         {
                             filteredChapters.map((chapter, index) => (
-                                <Link key={index} to={`/trainingQuestion/${chapter.syllabus}/${chapter.book}/${chapter.chaptername}`} className='link-text'>
-                                    <div className="chapter-box" key={index}>
-                                        <p>{chapter.chaptername}</p>
-                                    </div>
-                                </Link>
+                                <div
+                                    key={index}
+                                    className="chapter-box link-text"
+                                    onClick={() => handleChapterClick(chapter)}
+                                    style={{ cursor: 'pointer' }}
+                                >
+                                    <p>{chapter.chaptername}</p>
+                                </div>
                             ))
                         }
 
